@@ -1,13 +1,19 @@
 const express = require('express');
+const morgan = require('morgan');
+
+const toursRouter = require('./routes/toursRoutes');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.status(200).json({ app: 'Natours', message: 'Hello from the server!' });
-});
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
-const port = 3000;
+app
+  .use(express.json())
+  .use((req, res, next) => {
+    req.requestedAt = new Date().toISOString();
+    next();
+  })
+  .use(express.static(`${__dirname}/public`))
+  .use('/api/v1/tours', toursRouter);
 
-app.listen(port, () => {
-  console.log(`App is running on port ${port}`);
-});
+module.exports = app;
