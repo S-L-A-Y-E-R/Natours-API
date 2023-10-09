@@ -6,7 +6,9 @@ const {
     getOneTour,
     updateTour,
     deleteTour,
-    getTopCheapest
+    getTopCheapest,
+    toursStatistics,
+    getMonthlyPlan
 } =
     require('../controllers/toursController');
 
@@ -16,6 +18,14 @@ const router = express.Router();
 router.
     route('/top-5-cheapest').
     get(getTopCheapest, getAllTours);
+
+router.
+    route('/toursStats').
+    get(toursStatistics);
+
+router.
+    route('/monthly-plan/:year').
+    get(getMonthlyPlan);
 
 router.
     route('/').
