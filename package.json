@@ -14,7 +14,9 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "mongoose": "^7.6.0",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "slug": "^8.2.3",
+    "validator": "^13.11.0"
   },
   "devDependencies": {
     "eslint": "^8.50.0",
