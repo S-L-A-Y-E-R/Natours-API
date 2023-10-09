@@ -1,4 +1,12 @@
 const Tour = require('../models/toursModel');
+const APIFeatures = require('../utils/apiFeatures');
+
+//Aliasing Middleware
+const getTopCheapest = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    next();
+};
 
 const addTour = async (req, res) => {
     try {
@@ -18,28 +26,13 @@ const addTour = async (req, res) => {
 
 const getAllTours = async (req, res) => {
     try {
-        const excludeFields = ['page', 'sort', 'limit', 'fields'];
-        let queryObj = { ...req.query };
+        const features = new APIFeatures(Tour.find(), req.query).
+            filter().
+            limitFields().
+            paginate().
+            sort();
 
-        excludeFields.forEach(ele => delete queryObj[ele]);
-
-        //Filtering
-        let queryString = JSON.stringify(queryObj);
-        queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, match => `$${match}`);
-
-        queryObj = JSON.parse(queryString);
-
-        let query = Tour.find(queryObj);
-
-        //Sorting
-        if (req.query.sort) {
-            const sortBy = req.query.sort.split(',').join(' ');
-            query.sort(sortBy);
-        } else {
-            query.sort('-createdAt');
-        }
-
-        const tours = await query;
+        const tours = await features.query;
 
         res.status(200).json({
             status: 'success',
@@ -106,4 +99,11 @@ const deleteTour = async (req, res) => {
     }
 };
 
-module.exports = { getAllTours, getOneTour, addTour, updateTour, deleteTour };
+module.exports = {
+    getAllTours,
+    getOneTour,
+    addTour,
+    updateTour,
+    deleteTour,
+    getTopCheapest
+};

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 const express = require('express');
 
 const {
@@ -6,13 +5,17 @@ const {
     addTour,
     getOneTour,
     updateTour,
-    deleteTour
+    deleteTour,
+    getTopCheapest
 } =
     require('../controllers/toursController');
 
 const router = express.Router();
 
-// router.param('id');
+//Aliasing route
+router.
+    route('/top-5-cheapest').
+    get(getTopCheapest, getAllTours);
 
 router.
     route('/').
