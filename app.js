@@ -3,8 +3,8 @@ const morgan = require('morgan');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
-
 const toursRouter = require('./routes/toursRoutes');
+const usersRoutes = require('./routes/usersRoutes');
 
 const app = express();
 
@@ -17,7 +17,8 @@ app
     next();
   })
   .use(express.static(`${__dirname}/public`))
-  .use('/api/v1/tours', toursRouter);
+  .use('/api/v1/tours', toursRouter)
+  .use('api/v1/users', usersRoutes);
 
 // Handling wrong urls
 app.all('*', (req, res, next) => {
