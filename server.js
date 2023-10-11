@@ -9,7 +9,7 @@ process.on('uncaughtException', err => {
   process.exit(1);
 });
 
-mongoose.connect(process.env.DATABASE);
+mongoose.connect(process.env.DATABASE).then(console.log('Connected to database'));
 
 const app = require('./app');
 

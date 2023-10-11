@@ -18,7 +18,7 @@ app
   })
   .use(express.static(`${__dirname}/public`))
   .use('/api/v1/tours', toursRouter)
-  .use('api/v1/users', usersRoutes);
+  .use('/api/v1/users', usersRoutes);
 
 // Handling wrong urls
 app.all('*', (req, res, next) => {
