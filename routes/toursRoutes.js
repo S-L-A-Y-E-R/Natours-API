@@ -11,31 +11,32 @@ const {
     getMonthlyPlan
 } =
     require('../controllers/toursController');
+const { protect } = require('../controllers/authController');
 
 const router = express.Router();
 
 //Aliasing route
 router.
     route('/top-5-cheapest').
-    get(getTopCheapest, getAllTours);
+    get(protect, getTopCheapest, getAllTours);
 
 router.
     route('/toursStats').
-    get(toursStatistics);
+    get(protect, toursStatistics);
 
 router.
     route('/monthly-plan/:year').
-    get(getMonthlyPlan);
+    get(protect, getMonthlyPlan);
 
 router.
     route('/').
-    get(getAllTours).
-    post(addTour);
+    get(protect, getAllTours).
+    post(protect, addTour);
 
 router.
     route('/:id').
-    get(getOneTour).
-    patch(updateTour).
-    delete(deleteTour);
+    get(protect, getOneTour).
+    patch(protect, updateTour).
+    delete(protect, deleteTour);
 
 module.exports = router;

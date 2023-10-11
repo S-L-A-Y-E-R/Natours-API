@@ -1,7 +1,8 @@
 const express = require('express');
 const {
     signUp,
-    login
+    login,
+    protect
 } = require('../controllers/authController');
 
 const {
@@ -18,12 +19,12 @@ router.post('/login', login);
 
 router.
     route('/').
-    get(getAllUsers);
+    get(protect, getAllUsers);
 
 router.
     route('/:id').
-    get(getOneUser).
-    patch(updateUser).
-    delete(deleteUser);
+    get(protect, getOneUser).
+    patch(protect, updateUser).
+    delete(protect, deleteUser);
 
 module.exports = router;

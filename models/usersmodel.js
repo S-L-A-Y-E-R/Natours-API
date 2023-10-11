@@ -30,13 +30,14 @@ const usersSchema = new mongoose.Schema({
             validator: function (val) {
                 return val === this.password;
             },
-            message: 'Password and password confirm must be identical'
+            message: 'Password and passwordConfirm does not match'
         }
     },
     createdAt: {
         type: Date,
         default: Date.now()
-    }
+    },
+    passwordChangedAt: Date
 });
 
 usersSchema.pre('save', async function (next) {
@@ -50,6 +51,15 @@ usersSchema.pre('save', async function (next) {
 
 usersSchema.methods.checkPassword = async function (candidatePassword, userPassword) {
     return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+usersSchema.methods.passwordChanged = function (tokeTimeStamp) {
+    if (this.passwordChangedAt) {
+        const passwordTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        return passwordTimeStamp > tokeTimeStamp;
+    }
+
+    return false;
 };
 
 const User = mongoose.model('User', usersSchema);
