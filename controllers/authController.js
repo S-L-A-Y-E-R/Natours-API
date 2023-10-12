@@ -4,6 +4,7 @@ const { promisify } = require('util');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/usersmodel');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/email');
 
 const generateJWT = (newUser) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -17,6 +18,7 @@ const signUp = catchAsync(async (req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
+        role: req.body.role,
         password: req.body.password,
         passowordConfirm: req.body.passowordConfirm
     });
@@ -73,10 +75,64 @@ const protect = catchAsync(async (req, res, next) => {
     };
 
     req.user = user;
-    
+
     next();
 });
 
+const restrictTo = (...roles) => {
 
+    return catchAsync(async (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new AppError("You don't have a permision to perform this action", 403));
+        };
 
-module.exports = { signUp, login, protect };
+        next();
+    });
+};
+
+const forgotPassword = catchAsync(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+        return next(new AppError('There is no user with that email', 404));
+    };
+
+    const resetToken = user.createResetPasswordToken();
+    await user.save({ validateBeforeSave: false });
+
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+
+    const message = `Forgot your password? Click this URL to reset your password: ${resetURL}`;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Your password reset token (valid for 10 minutes)',
+            message
+        });
+    } catch (e) {
+        user.passwordResetToken = undefined;
+        user.passowordExpireToken = undefined;
+        user.save({ validateBeforeSave: false });
+
+        return next(new AppError('There is an error while sending the emial', 500));
+    };
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Token sent to email'
+    });
+});
+
+const resetPassword = catchAsync(async (req, res, next) => {
+
+});
+
+module.exports = {
+    signUp,
+    login,
+    protect,
+    restrictTo,
+    resetPassword,
+    forgotPassword
+};
