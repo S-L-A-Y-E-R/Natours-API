@@ -15,6 +15,28 @@ const generateJWT = (newUser) => {
     return token;
 };
 
+const createSendToken = (user, res, statusCode) => {
+    const token = generateJWT(user);
+
+    const cookieOptions = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+        httpOnly: true
+    };
+
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    res.cookie('jwt', token, cookieOptions);
+
+    user.password = undefined;
+    user.active = undefined;
+
+    res.status(statusCode).json({
+        message: 'success',
+        token,
+        data: user
+    });
+};
+
 const signUp = catchAsync(async (req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
@@ -24,13 +46,7 @@ const signUp = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm
     });
 
-    const token = generateJWT(newUser);
-
-    res.status(201).json({
-        message: 'success',
-        token,
-        data: newUser
-    });
+    createSendToken(newUser, res, 201);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -44,13 +60,7 @@ const login = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid email or password', 401));
     };
 
-    const token = generateJWT(user);
-
-    res.status(200).json({
-        status: 'success',
-        token,
-        data: await User.findOne({ email }).select('-__v')
-    });
+    createSendToken(user, res, 200);
 });
 
 const protect = catchAsync(async (req, res, next) => {
@@ -146,13 +156,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
     await user.save();
 
-    const token = generateJWT(user);
-
-    res.status(200).json({
-        status: 'success',
-        token,
-        data: user
-    });
+    createSendToken(user, res, 200);
 
 });
 
@@ -175,13 +179,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
 
     await user.save();
 
-    const token = generateJWT(user);
-
-    res.status(200).json({
-        status: 'success',
-        token,
-        data: user
-    });
+    createSendToken(user, res, 200);
 });
 
 
