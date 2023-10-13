@@ -4,13 +4,14 @@ const {
     login,
     protect,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updatePassword
 } = require('../controllers/authController');
 
 const {
     getAllUsers,
     getOneUser,
-    updateUser,
+    updateMe,
     deleteUser
 } = require('../controllers/usersController');
 
@@ -20,6 +21,8 @@ router.post('/signup', signUp);
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
+router.patch('/updatePassword', protect, updatePassword);
+router.patch('/updateMe', protect, updateMe);
 
 router.
     route('/').
@@ -28,7 +31,6 @@ router.
 router.
     route('/:id').
     get(protect, getOneUser).
-    patch(protect, updateUser).
     delete(protect, deleteUser);
 
 module.exports = router;

@@ -30,20 +30,6 @@ const getOneUser = catchAsync(async (req, res, next) => {
     });
 });
 
-const updateUser = catchAsync(async (req, res, next) => {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    });
-
-    if (!user) next(new AppError('Invalid user ID', 404));
-
-    res.status(200).json({
-        message: 'success',
-        data: user
-    });
-});
-
 const deleteUser = catchAsync(async (req, res, next) => {
     const user = await User.findByIdAndDelete(req.params.id);
 
@@ -55,4 +41,24 @@ const deleteUser = catchAsync(async (req, res, next) => {
     });
 });
 
-module.exports = { getAllUsers, getOneUser, updateUser, deleteUser };
+const updateMe = catchAsync(async (req, res, next) => {
+    if (req.body.password || req.body.passowordConfirm) {
+        return next(new AppError('You are not allowed to update the password using this route'));
+    };
+
+    const { name, email } = req.body;
+
+    const filteredBody = { name, email };
+
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+        new: true,
+        runValidators: true
+    });
+
+    res.status(200).json({
+        status: 'success',
+        data: updatedUser
+    });
+});
+
+module.exports = { getAllUsers, getOneUser, updateMe, deleteUser };
