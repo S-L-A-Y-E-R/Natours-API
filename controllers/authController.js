@@ -21,7 +21,7 @@ const signUp = catchAsync(async (req, res, next) => {
         email: req.body.email,
         role: req.body.role,
         password: req.body.password,
-        passowordConfirm: req.body.passowordConfirm
+        passwordConfirm: req.body.passwordConfirm
     });
 
     const token = generateJWT(newUser);
@@ -133,16 +133,18 @@ const resetPassword = catchAsync(async (req, res, next) => {
         passowordExpireToken: { $gt: Date.now() }
     });
 
+    console.log(user);
+
     if (!user) {
         return next(new AppError('Invalid token or it has expired'), 400);
     };
 
     user.password = req.body.password;
-    user.passowordConfirm = req.body.passowordConfirm;
+    user.passwordConfirm = req.body.passwordConfirm;
     user.passwordResetToken = undefined;
     user.passowordExpireToken = undefined;
 
-    user.save();
+    await user.save();
 
     const token = generateJWT(user);
 
@@ -154,6 +156,34 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
 });
 
+const updatePassword = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('+password');
+    const checkValidPassword = await user.checkPassword(req.body.password, user.password);
+
+    if (!checkValidPassword) {
+        return next(new AppError("The provided password does'nt match the current password", 400));
+    };
+
+    const checkTypicalPasswords = await user.checkPassword(req.body.newPassword, user.password);
+
+    if (checkTypicalPasswords) {
+        return next(new AppError("The new password and the current password must'nt be the same", 400));
+    }
+
+    user.password = req.body.newPassword;
+    user.passwordConfirm = req.body.passwordConfirm;
+
+    await user.save();
+
+    const token = generateJWT(user);
+
+    res.status(200).json({
+        status: 'success',
+        token,
+        data: user
+    });
+});
+
 
 module.exports = {
     signUp,
@@ -161,5 +191,6 @@ module.exports = {
     protect,
     restrictTo,
     resetPassword,
-    forgotPassword
+    forgotPassword,
+    updatePassword
 };
