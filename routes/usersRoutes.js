@@ -5,14 +5,16 @@ const {
     protect,
     forgotPassword,
     resetPassword,
-    updatePassword
+    updatePassword,
+    restrictTo
 } = require('../controllers/authController');
 
 const {
     getAllUsers,
     getOneUser,
     updateMe,
-    deleteUser
+    deleteUser,
+    deleteMe
 } = require('../controllers/usersController');
 
 const router = express.Router();
@@ -23,14 +25,15 @@ router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
 router.patch('/updatePassword', protect, updatePassword);
 router.patch('/updateMe', protect, updateMe);
+router.delete('/deleteMe', protect, deleteMe);
 
 router.
     route('/').
-    get(protect, getAllUsers);
+    get(protect, restrictTo('admin'), getAllUsers);
 
 router.
     route('/:id').
-    get(protect, getOneUser).
+    get(protect, restrictTo('admin'), getOneUser).
     delete(protect, deleteUser);
 
 module.exports = router;
