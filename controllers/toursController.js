@@ -15,7 +15,9 @@ const addTour = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
         status: 'success',
-        data: newTour
+        data: {
+            tour: newTour
+        }
     });
 });
 
@@ -44,7 +46,9 @@ const getOneTour = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        data: tour
+        data: {
+            tour
+        }
     });
 });
 
@@ -60,7 +64,9 @@ const updateTour = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        message: tour
+        data: {
+            tour
+        }
     });
 });
 

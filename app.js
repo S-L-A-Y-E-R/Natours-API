@@ -16,7 +16,7 @@ const app = express();
 //Set security http headers
 app.use(helmet());
 
-
+//Use morgan logger in the develpment
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 //Limiting num.of requests for certain IP
@@ -63,7 +63,7 @@ app
   .use('/api/v1/tours', toursRouter)
   .use('/api/v1/users', usersRoutes);
 
-// Handling wrong urls
+// Handle requests from wrong urls
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

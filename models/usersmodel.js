@@ -6,7 +6,8 @@ const crypto = require('crypto');
 const usersSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Please insert your name']
+        required: [true, 'Please insert your name'],
+        trim: true
     },
     role: {
         type: String,
@@ -20,7 +21,8 @@ const usersSchema = new mongoose.Schema({
         required: [true, 'Please insert your email'],
         unique: true,
         lowercase: true,
-        validate: [validator.isEmail, 'Please provide a vaild email']
+        validate: [validator.isEmail, 'Please provide a vaild email'],
+        trim: true
     },
     photo: {
         type: String
@@ -28,12 +30,12 @@ const usersSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please insert password'],
-        minlength: 8,
+        minlength: [8, 'Password must be at least 8 characters'],
         select: false
     },
     passwordConfirm: {
         type: String,
-        required: [true, 'Please confirm the password'],
+        required: [true, 'Please confirm your password'],
         validate: {
             validator: function (val) {
                 return val === this.password;

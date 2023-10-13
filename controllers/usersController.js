@@ -20,7 +20,7 @@ const getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 const getOneUser = catchAsync(async (req, res, next) => {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select('-__v');
 
     if (!user) {
         return next(new AppError('Invalid user ID', 404));
@@ -28,18 +28,9 @@ const getOneUser = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         message: 'success',
-        data: user
-    });
-});
-
-const deleteUser = catchAsync(async (req, res, next) => {
-    const user = await User.findByIdAndDelete(req.params.id);
-
-    if (!user) next(new AppError('Invalid user ID', 404));
-
-    res.status(204).json({
-        message: 'success',
-        data: null
+        data: {
+            user
+        }
     });
 });
 
@@ -76,6 +67,5 @@ module.exports = {
     getAllUsers,
     getOneUser,
     updateMe,
-    deleteUser,
     deleteMe
 };

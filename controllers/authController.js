@@ -33,7 +33,9 @@ const createSendToken = (user, res, statusCode) => {
     res.status(statusCode).json({
         message: 'success',
         token,
-        data: user
+        data: {
+            user
+        }
     });
 };
 
@@ -126,7 +128,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
         user.passowordExpireToken = undefined;
         user.save({ validateBeforeSave: false });
 
-        return next(new AppError('There is an error while sending the emial', 500));
+        return next(new AppError('There is an error while sending the email', 500));
     };
 
     res.status(200).json({
@@ -143,10 +145,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
         passowordExpireToken: { $gt: Date.now() }
     });
 
-    console.log(user);
-
     if (!user) {
-        return next(new AppError('Invalid token or it has expired'), 400);
+        return next(new AppError('Invalid token or it is expired'), 400);
     };
 
     user.password = req.body.password;
@@ -162,15 +162,15 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
 const updatePassword = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
-    const checkValidPassword = await user.checkPassword(req.body.password, user.password);
+    const isValidPassword = await user.checkPassword(req.body.password, user.password);
 
-    if (!checkValidPassword) {
+    if (!isValidPassword) {
         return next(new AppError("The provided password does'nt match the current password", 400));
     };
 
-    const checkTypicalPasswords = await user.checkPassword(req.body.newPassword, user.password);
+    const isTypicalPasswords = await user.checkPassword(req.body.newPassword, user.password);
 
-    if (checkTypicalPasswords) {
+    if (isTypicalPasswords) {
         return next(new AppError("The new password and the current password must'nt be the same", 400));
     }
 
