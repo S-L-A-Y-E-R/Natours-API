@@ -10,6 +10,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const toursRouter = require('./routes/toursRoutes');
 const usersRoutes = require('./routes/usersRoutes');
+const reviewsRouter = require('./routes/reviewsRoutes');
 
 const app = express();
 
@@ -61,7 +62,8 @@ app.use(express.static(`${__dirname}/public`));
 //Global resources
 app
   .use('/api/v1/tours', toursRouter)
-  .use('/api/v1/users', usersRoutes);
+  .use('/api/v1/users', usersRoutes)
+  .use('/api/v1/reviews', reviewsRouter);
 
 // Handle requests from wrong urls
 app.all('*', (req, res, next) => {
