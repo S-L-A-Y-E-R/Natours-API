@@ -13,7 +13,8 @@ const {
     getAllUsers,
     getOneUser,
     updateMe,
-    deleteMe
+    deleteMe,
+    deleteUser
 } = require('../controllers/usersController');
 
 const router = express.Router();
@@ -34,6 +35,9 @@ router.delete('/deleteMe', protect, deleteMe);
 
 router.get('/', protect, restrictTo('admin'), getAllUsers);
 
-router.get('/:id', protect, restrictTo('admin'), getOneUser);
+router.
+    route('/:id').
+    get(protect, restrictTo('admin'), getOneUser).
+    delete(protect, restrictTo('admin'), deleteUser);
 
 module.exports = router;
