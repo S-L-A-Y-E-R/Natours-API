@@ -5,7 +5,8 @@ const {
     addReview,
     getAllReviews,
     deleteReview,
-    updateReview
+    updateReview,
+    addParamsToBody
 } = require('../controllers/reviewsController');
 
 const router = express.Router({ mergeParams: true });
@@ -13,11 +14,11 @@ const router = express.Router({ mergeParams: true });
 router.
     route('/').
     get(protect, getAllReviews).
-    post(protect, restrictTo('user'), addReview);
+    post(protect, restrictTo('user'), addParamsToBody, addReview);
 
 router.
     route('/:id').
-    delete(protect, restrictTo('user','admin'), deleteReview).
+    delete(protect, restrictTo('user', 'admin'), deleteReview).
     patch(protect, restrictTo('user'), updateReview);
 
 module.exports = router;
