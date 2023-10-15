@@ -12,6 +12,10 @@ const getAllUsers = getAll(User);
 
 const getOneUser = getOne(User);
 
+const deleteUser = deleteOne(User);
+
+const updateUser = updateOne(User);
+
 const updateMe = catchAsync(async (req, res, next) => {
     if (req.body.password || req.body.passowordConfirm) {
         return next(new AppError('You are not allowed to update the password using this route'));
@@ -41,9 +45,11 @@ const deleteMe = catchAsync(async (req, res, next) => {
     });
 });
 
-const deleteUser = deleteOne(User);
+const getMe = (req, res, next) => {
+    req.params.id = req.user.id;
 
-const updateUser = updateOne(User);
+    next();
+};
 
 module.exports = {
     getAllUsers,
@@ -51,5 +57,6 @@ module.exports = {
     updateMe,
     deleteMe,
     deleteUser,
-    updateUser
+    updateUser,
+    getMe
 };
