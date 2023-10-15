@@ -22,25 +22,25 @@ router.use('/:tourId/reviews', reviewRouter);
 //Aliasing route
 router.
     route('/top-5-cheapest').
-    get(protect, getTopCheapest, getAllTours);
+    get(getTopCheapest, getAllTours);
 
 router.
     route('/toursStats').
-    get(protect, toursStatistics);
+    get(toursStatistics);
 
 router.
     route('/monthly-plan/:year').
-    get(protect, getMonthlyPlan);
+    get(protect, restrictTo('lead-guide', 'admin', 'guide'), getMonthlyPlan);
 
 router.
     route('/').
-    get(protect, getAllTours).
-    post(protect, addTour);
+    get(getAllTours).
+    post(protect, restrictTo('lead-guide', 'admin'), addTour);
 
 router.
     route('/:id').
-    get(protect, getOneTour).
-    patch(protect, updateTour).
+    get(getOneTour).
+    patch(protect, restrictTo('lead-guide', 'admin'), updateTour).
     delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
