@@ -12,8 +12,12 @@ const {
 } =
     require('../controllers/toursController');
 const { protect, restrictTo } = require('../controllers/authController');
+const reviewRouter = require(('./reviewsRoutes'));
 
 const router = express.Router();
+
+//Reviews nested route
+router.use('/:tourId/reviews', reviewRouter);
 
 //Aliasing route
 router.
