@@ -1,9 +1,10 @@
-const catchAsync = require('../utils/catchAsync');
 const Review = require('../models/reviewsModel');
 const {
     deleteOne,
     updateOne,
-    createOne
+    createOne,
+    getOne,
+    getAll
 } = require('./factoryHandler');
 
 const addParamsToBody = (req, res, next) => {
@@ -15,19 +16,9 @@ const addParamsToBody = (req, res, next) => {
 
 const addReview = createOne(Review);
 
-const getAllReviews = catchAsync(async (req, res, next) => {
-    let filter = {};
+const getAllReviews = getAll(Review);
 
-    if (req.params.tourId) filter = { tour: req.params.tourId };
-
-    const reviews = await Review.find(filter);
-
-    res.status(200).json({
-        status: 'success',
-        results: reviews.length,
-        data: reviews
-    });
-});
+const getOneReview = getOne(Review);
 
 const deleteReview = deleteOne(Review);
 
@@ -38,5 +29,6 @@ module.exports = {
     getAllReviews,
     deleteReview,
     updateReview,
-    addParamsToBody
+    addParamsToBody,
+    getOneReview
 };

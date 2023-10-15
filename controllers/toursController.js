@@ -1,12 +1,12 @@
 const Tour = require('../models/toursModel');
 const User = require('../models/usersmodel');
-const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const {
     deleteOne,
     updateOne,
-    createOne
+    createOne,
+    getOne,
+    getAll
 } = require('./factoryHandler');
 
 //Aliasing Middleware
@@ -18,36 +18,9 @@ const getTopCheapest = (req, res, next) => {
 
 const addTour = createOne(User);
 
-const getAllTours = catchAsync(async (req, res, next) => {
-    const features = new APIFeatures(Tour.find(), req.query).
-        filter().
-        limitFields().
-        paginate().
-        sort();
+const getAllTours = getAll(Tour);
 
-    const tours = await features.query;
-
-    res.status(200).json({
-        status: 'success',
-        results: tours.length,
-        data: tours
-    });
-});
-
-const getOneTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findById(req.params.id).populate('reviews');
-
-    if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            tour
-        }
-    });
-});
+const getOneTour = getOne(Tour, { path: 'reviews' });
 
 const updateTour = updateOne(Tour);
 
