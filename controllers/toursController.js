@@ -2,7 +2,10 @@ const Tour = require('../models/toursModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { deleteOne } = require('./factoryHandler');
+const {
+    deleteOne,
+    updateOne
+} = require('./factoryHandler');
 
 //Aliasing Middleware
 const getTopCheapest = (req, res, next) => {
@@ -53,23 +56,7 @@ const getOneTour = catchAsync(async (req, res, next) => {
     });
 });
 
-const updateTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    });
-
-    if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            tour
-        }
-    });
-});
+const updateTour = updateOne(Tour);
 
 const deleteTour = deleteOne(Tour);
 

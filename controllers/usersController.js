@@ -2,7 +2,10 @@ const catchAsync = require('../utils/catchAsync');
 const User = require('../models/usersmodel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
-const { deleteOne } = require('./factoryHandler');
+const {
+    deleteOne,
+    updateOne
+} = require('./factoryHandler');
 
 const getAllUsers = catchAsync(async (req, res, next) => {
     const features = new APIFeatures(User.find(), req.query).
@@ -66,10 +69,13 @@ const deleteMe = catchAsync(async (req, res, next) => {
 
 const deleteUser = deleteOne(User);
 
+const updateUser = updateOne(User);
+
 module.exports = {
     getAllUsers,
     getOneUser,
     updateMe,
     deleteMe,
-    deleteUser
+    deleteUser,
+    updateUser
 };

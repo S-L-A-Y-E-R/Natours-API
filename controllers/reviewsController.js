@@ -1,6 +1,9 @@
 const catchAsync = require('../utils/catchAsync');
 const Review = require('../models/reviewsModel');
-const { deleteOne } = require('./factoryHandler');
+const {
+    deleteOne,
+    updateOne
+} = require('./factoryHandler');
 
 const addReview = catchAsync(async (req, res, next) => {
     if (!req.body.tour) req.body.tour = req.params.tourId;
@@ -32,8 +35,11 @@ const getAllReviews = catchAsync(async (req, res, next) => {
 
 const deleteReview = deleteOne(Review);
 
+const updateReview = updateOne(Review);
+
 module.exports = {
     addReview,
     getAllReviews,
-    deleteReview
+    deleteReview,
+    updateReview
 };
