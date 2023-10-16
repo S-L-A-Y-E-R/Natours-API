@@ -35,7 +35,8 @@ const tourSchema = new mongoose.Schema({
         type: Number,
         default: 4.5,
         min: [1, 'The rating must be above 1'],
-        max: [5, 'The rating must be below 5']
+        max: [5, 'The rating must be below 5'],
+        set: val => Math.round(val)
     },
     ratingsQuantity: {
         type: Number,
@@ -118,6 +119,9 @@ tourSchema.virtual('reviews', {
     foreignField: 'tour',
     localField: '_id'
 });
+
+//Indexing the documents to optimize the query
+tourSchema.index({ price: 1, ratingsAverage: -1 });
 
 //Document middleware (excutes before saving the document)
 tourSchema.pre('save', function (next) {

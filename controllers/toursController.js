@@ -16,7 +16,7 @@ const getTopCheapest = (req, res, next) => {
     next();
 };
 
-const addTour = createOne(User);
+const addTour = createOne(Tour);
 
 const getAllTours = getAll(Tour);
 
