@@ -8,7 +8,9 @@ const {
     deleteTour,
     getTopCheapest,
     toursStatistics,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getToursWithin,
+    getDistances
 } =
     require('../controllers/toursController');
 const { protect, restrictTo } = require('../controllers/authController');
@@ -23,6 +25,14 @@ router.use('/:tourId/reviews', reviewRouter);
 router.
     route('/top-5-cheapest').
     get(getTopCheapest, getAllTours);
+
+router.
+    route('/tours-within/:distance/center/:latlng/unit/:unit').
+    get(getToursWithin);
+
+router.
+    route('/distances/:latlng/unit/:unit').
+    get(getDistances);
 
 router.
     route('/toursStats').

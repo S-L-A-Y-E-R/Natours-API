@@ -1,5 +1,5 @@
 const Tour = require('../models/toursModel');
-const User = require('../models/usersmodel');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const {
     deleteOne,
@@ -79,7 +79,10 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
         },
         {
             $project: {
-                _id: 0
+                _id: 0,
+                month: 1,
+                numTourStarts: 1,
+                tours: 1,
             }
         },
         {
@@ -93,6 +96,70 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
     });
 });
 
+const getToursWithin = catchAsync(async (req, res, next) => {
+    const { distance, latlng, unit } = req.params;
+
+    const [lat, lng] = latlng.split(',');
+
+    if (!lat, !lng) {
+        return next(new AppError('Please provide a latitude and longitude in form of lat,lng'), 400);
+    };
+
+    const radius = unit === 'miles' ? distance / 3963.2 : distance / 6378.1;
+
+    const tours = await Tour.find({
+        startLocation: {
+            $geoWithin: { $centerSphere: [[lng, lat], radius] }
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            tours
+        }
+    });
+});
+
+const getDistances = catchAsync(async (req, res, next) => {
+    const { latlng, unit } = req.params;
+
+    const [lat, lng] = latlng.split(',');
+
+    const multiplier = unit === 'miles' ? 0.000621371 : 0.001;
+
+    if (!lat, !lng) {
+        return next(new AppError('Please provide a latitude and longitude in form of lat,lng'), 400);
+    };
+
+    const distances = await Tour.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [+lng, +lat]
+                },
+                distanceField: 'distance',
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                name: 1,
+                distance: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            distances
+        }
+    });
+});
+
 module.exports = {
     getAllTours,
     getOneTour,
@@ -101,5 +168,7 @@ module.exports = {
     deleteTour,
     getTopCheapest,
     toursStatistics,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getToursWithin,
+    getDistances
 };
