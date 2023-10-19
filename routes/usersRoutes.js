@@ -36,7 +36,11 @@ router.use(protect);
 
 router.patch('/updatePassword', updatePassword);
 
-router.patch('/updateMe', updateUserPhoto, resizeUserPhoto, updateMe);
+router.patch('/updateMe',
+    updateUserPhoto,
+    resizeUserPhoto,
+    updateMe
+);
 
 router.delete('/deleteMe', deleteMe);
 

@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/usersmodel');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 
 const generateJWT = (newUser) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -115,14 +115,8 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
 
-    const message = `Forgot your password? Click this URL to reset your password: ${resetURL}`;
-
     try {
-        await sendEmail({
-            email: user.email,
-            subject: 'Your password reset token (valid for 10 minutes)',
-            message
-        });
+        await new Email(user, resetURL).sendPasswordReset();
     } catch (e) {
         user.passwordResetToken = undefined;
         user.passowordExpireToken = undefined;

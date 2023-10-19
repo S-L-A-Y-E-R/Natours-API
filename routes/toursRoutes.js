@@ -52,7 +52,11 @@ router.
 router.
     route('/:id').
     get(getOneTour).
-    patch(protect, restrictTo('lead-guide', 'admin'), uploadTourImages, resizeTourImages, updateTour).
+    patch(protect,
+        restrictTo('lead-guide', 'admin'),
+        uploadTourImages,
+        resizeTourImages,
+        updateTour).
     delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
