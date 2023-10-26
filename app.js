@@ -11,6 +11,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const toursRouter = require('./routes/toursRoutes');
 const usersRoutes = require('./routes/usersRoutes');
 const reviewsRouter = require('./routes/reviewsRoutes');
+const bookingsRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
@@ -63,7 +64,8 @@ app.use(express.static(`${__dirname}/public`));
 app
   .use('/api/v1/tours', toursRouter)
   .use('/api/v1/users', usersRoutes)
-  .use('/api/v1/reviews', reviewsRouter);
+  .use('/api/v1/reviews', reviewsRouter)
+  .use('/api/v1/bookings', bookingsRouter);
 
 // Handle requests from wrong urls
 app.all('*', (req, res, next) => {
