@@ -7,32 +7,46 @@ const User = require('../models/usersmodel');
 const AppError = require('../utils/appError');
 const Email = require('../utils/email');
 
-const generateJWT = (newUser) => {
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN
+const generateAccessToken = (newUser) => {
+    const accessToken = jwt.sign({ id: newUser._id }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
     });
 
-    return token;
+    return accessToken;
 };
 
-const createSendToken = (user, res, statusCode) => {
-    const token = generateJWT(user);
+const generateRefreshToken = (newUser) => {
+    const refreshToken = jwt.sign({ id: newUser._id }, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
+    });
 
-    const cookieOptions = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-        httpOnly: true
+    return refreshToken;
+};
+
+const createAndSendTokens = (user, res, statusCode) => {
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    const cookieOptions = (tokenType) => {
+        return {
+            expires: new Date(Date.now() +
+                `${tokenType === 'accessToken' ? process.env.ACCESS_TOKEN_COOKIE_EXPIRES_IN
+                    : process.env.REFRESHH_TOKEN_COOKIE_EXPIRES_IN}`
+                * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+            secure: `${process.env.NODE_ENV === 'production' ? true : false}`
+        };
     };
 
-    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
-    res.cookie('jwt', token, cookieOptions);
+    res.cookie('accessToken', accessToken, cookieOptions('accessToken'));
+    res.cookie('refreshToken', refreshToken, cookieOptions('refreshToken'));
 
     user.password = undefined;
     user.active = undefined;
 
     res.status(statusCode).json({
         message: 'success',
-        token,
+        accessToken,
         data: {
             user
         }
@@ -48,7 +62,7 @@ const signUp = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm
     });
 
-    createSendToken(newUser, res, 201);
+    createAndSendTokens(newUser, res, 201);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -62,25 +76,25 @@ const login = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid email or password', 401));
     };
 
-    createSendToken(user, res, 200);
+    createAndSendTokens(user, res, 200);
 });
 
 const protect = catchAsync(async (req, res, next) => {
-    let token;
+    let accessToken;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+        accessToken = req.headers.authorization.split(' ')[1];
     }
 
-    if (!token) {
+    if (!accessToken) {
         return next(new AppError('You are not loggedIn. Please logIn to get access!', 401));
     }
 
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const decoded = await promisify(jwt.verify)(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
     const user = await User.findById(decoded.id);
     if (!user) {
-        return next(new AppError('The user belonging to this token deos not exist', 401));
+        return next(new AppError('The user belonging to this AccessToken deos not exist', 401));
     };
 
     if (user.passwordChanged(decoded.iat)) {
@@ -110,7 +124,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
         return next(new AppError('There is no user with that email', 404));
     };
 
-    const resetToken = user.createResetPasswordToken();
+    const resetToken = user.createResetPasswordAccessToken();
     await user.save({ validateBeforeSave: false });
 
     const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
@@ -127,7 +141,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        message: 'Token sent to email'
+        message: 'Access token sent to email'
     });
 });
 
@@ -140,7 +154,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
     });
 
     if (!user) {
-        return next(new AppError('Invalid token or it is expired'), 400);
+        return next(new AppError('Invalid access token or it is expired'), 400);
     };
 
     user.password = req.body.password;
@@ -150,7 +164,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
     await user.save();
 
-    createSendToken(user, res, 200);
+    createAndSendTokens(user, res, 200);
 
 });
 
@@ -173,7 +187,33 @@ const updatePassword = catchAsync(async (req, res, next) => {
 
     await user.save();
 
-    createSendToken(user, res, 200);
+    createAndSendTokens(user, res, 200);
+});
+
+const logout = (req, res) => {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    res.status(200).json({
+        status: 'success',
+    });
+};
+
+const refreshAccessToken = catchAsync(async (req, res, next) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return next(new AppError('Please provide the refresh token', 400));
+    }
+
+    const decoded = await promisify(jwt.verify)(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+        return next(new AppError('Refresh token is invalid or has expired', 401));
+    };
+
+    createAndSendTokens(user, res, 200);
 });
 
 
@@ -184,5 +224,7 @@ module.exports = {
     restrictTo,
     resetPassword,
     forgotPassword,
-    updatePassword
+    updatePassword,
+    logout,
+    refreshAccessToken
 };

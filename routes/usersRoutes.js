@@ -7,7 +7,9 @@ const {
     forgotPassword,
     resetPassword,
     updatePassword,
-    restrictTo
+    restrictTo,
+    logout,
+    refreshAccessToken
 } = require('../controllers/authController');
 const {
     getAllUsers,
@@ -31,10 +33,14 @@ router.post('/forgotPassword', forgotPassword);
 
 router.patch('/resetPassword/:token', resetPassword);
 
+router.post('/refresh-token',refreshAccessToken)
+
 //This middleware will protect all the incoming routes
 router.use(protect);
 
 router.patch('/updatePassword', updatePassword);
+
+router.post('/logout', logout);
 
 router.patch('/updateMe',
     updateUserPhoto,

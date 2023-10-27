@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const hpp = require('hpp');
-
+const cors = require('cors');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const toursRouter = require('./routes/toursRoutes');
@@ -14,6 +14,12 @@ const reviewsRouter = require('./routes/reviewsRoutes');
 const bookingsRouter = require('./routes/bookingRoutes');
 
 const app = express();
+
+//allow cors
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000'
+}));
 
 //Set security http headers
 app.use(helmet());
