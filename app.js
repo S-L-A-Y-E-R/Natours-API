@@ -6,6 +6,8 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const toursRouter = require('./routes/toursRoutes');
@@ -56,6 +58,14 @@ app.use(hpp({
     'maxGroupSize'
   ]
 }));
+
+//Parse and manipulate cookies 
+app.use(cookieParser());
+
+//Compress all text sent in the response to the client
+if (process.env.NODE_ENV === 'production') {
+  app.use(compression());
+}
 
 //Manipulating request object
 app.use((req, res, next) => {
