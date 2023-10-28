@@ -18,7 +18,7 @@ const bookingsRouter = require('./routes/bookingRoutes');
 const app = express();
 
 //Enable outsource proxies
-app.enable('trust proxy');
+// app.enable('trust proxy');
 
 //allow cors
 app.use(cors({
