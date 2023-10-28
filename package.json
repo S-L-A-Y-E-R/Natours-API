@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./server",
-    "debug": "ndb ./server",
-    "build": "rm -rf dist && webpack --mode development"
+    "start": "node ./server",
+    "dev":"nodemon ./server",
+    "debug": "ndb ./server"
   },
   "dependencies": {
     "axios": "^1.5.1",
