@@ -34,7 +34,7 @@ const createAndSendTokens = (user, res, statusCode) => {
                     : process.env.REFRESHH_TOKEN_COOKIE_EXPIRES_IN}`
                 * 24 * 60 * 60 * 1000),
             httpOnly: true,
-            secure: `${process.env.NODE_ENV === 'production' ? true : false}`
+            secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
         };
     };
 
