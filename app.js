@@ -20,10 +20,10 @@ const app = express();
 //Enable outsource proxies
 // app.set('trust proxy', true);
 
-//allow cors
+//Allow cors for all domains
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:3000'
+  origin: '*'
 }));
 
 //Set security http headers
