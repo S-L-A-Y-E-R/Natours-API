@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const AppError = require('./utils/appError');
@@ -44,7 +45,7 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 //We used the webhook checkout here, because it needs a body of type raw not JSON
 app.post('/webhook-checkout',
-  express.raw(),
+  bodyParser.raw({ type: 'application/json' }),
   webhookCheckout
 );
 
