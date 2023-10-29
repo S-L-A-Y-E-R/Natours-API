@@ -9,7 +9,7 @@ It also contain a complete authentication system using JWT and advanced authoriz
 
 ### Technologies
 
-[![My Skills](https://skillicons.dev/icons?i=js,node,express,mongo,mongoose,jwt,nodemailer,multer,validator)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=js,nodejs,express,mongodb,mongoose,postman)](https://skillicons.dev)
 
 ## Features:
 
