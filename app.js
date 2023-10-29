@@ -14,6 +14,7 @@ const toursRouter = require('./routes/toursRoutes');
 const usersRoutes = require('./routes/usersRoutes');
 const reviewsRouter = require('./routes/reviewsRoutes');
 const bookingsRouter = require('./routes/bookingRoutes');
+const { webhookCheckout } = require('./controllers/bookingController');
 
 const app = express();
 
@@ -40,6 +41,12 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 // });
 
 // app.use('/api', limiter);
+
+//We used the webhook checkout here, because it needs a body of type raw not JSON
+app.post('/webhook-checkout',
+  express.raw(),
+  webhookCheckout
+);
 
 //Limit data incoming from the request body
 app.use(express.json({ limit: '10kb' }));
