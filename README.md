@@ -32,7 +32,7 @@ It also contain a complete authentication system using JWT and advanced authoriz
 * Validator to help in validating schema fields.
 * Mongoose as abstract layer above mongodb for modeling the data.
 * Multer for uploading photos and sharp for optimizing them.
-* 
+  
 ### Installing
 
 Clone the repo and run this command in the terminal to install the dependecies:
