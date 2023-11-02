@@ -4,7 +4,7 @@ Natours API
 
 ## Introduction
 
-This is a featured API for a tours application that allow you to mange your tours,bookings and reviews.
+This is a featured api or a tours application that allow you to mange your tours,bookings and reviews.
 It also contain a complete authentication system using JWT and advanced authorization techniques and restriction.
 
 ### Technologies
