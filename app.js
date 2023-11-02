@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
@@ -10,6 +11,11 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const toursRouter = require('./routes/toursRoutes');
+const usersRoutes = require('./routes/usersRoutes');
+const reviewsRouter = require('./routes/reviewsRoutes');
+const bookingsRouter = require('./routes/bookingRoutes');
+const { webhookCheckout } = require('./controllers/bookingController');
 
 const app = express();
 
@@ -28,11 +34,20 @@ app.use(helmet());
 //Use morgan logger in the develpment
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
+//Limiting num.of requests for certain IP
+// const limiter = rateLimit({
+//   max: 100,
+//   windowMs: 60 * 60 * 1000,
+//   message: 'Too many requests from that IP, try again within an hour!'
+// });
+
+// app.use('/api', limiter);
+
 //We used the webhook checkout here, because it needs a body of type raw not JSON
-// app.post('/webhook-checkout',
-//   bodyParser.raw({ type: 'application/json' }),
-//   webhookCheckout
-// );
+app.post('/webhook-checkout',
+  bodyParser.raw({ type: 'application/json' }),
+  webhookCheckout
+);
 
 //Limit data incoming from the request body
 app.use(express.json({ limit: '10kb' }));
@@ -44,7 +59,16 @@ app.use(mongoSanitize());
 app.use(xssClean());
 
 //Prevent parameter pollution
-app.use(hpp());
+app.use(hpp({
+  whitelist: [
+    'duration',
+    'ratingsAverage',
+    'ratingsQuantity',
+    'difficulty',
+    'price',
+    'maxGroupSize'
+  ]
+}));
 
 //Parse and manipulate cookies 
 app.use(cookieParser());
@@ -54,8 +78,21 @@ if (process.env.NODE_ENV === 'production') {
   app.use(compression());
 }
 
-//Global resources
+//Manipulating request object
+app.use((req, res, next) => {
+  req.requestedAt = new Date().toISOString();
+  next();
+});
 
+//Allowig access to the static files
+app.use(express.static(`${__dirname}/public`));
+
+//Global resources
+app
+  .use('/api/v1/tours', toursRouter)
+  .use('/api/v1/users', usersRoutes)
+  .use('/api/v1/reviews', reviewsRouter)
+  .use('/api/v1/bookings', bookingsRouter);
 
 // Handle requests from wrong urls
 app.all('*', (req, res, next) => {
