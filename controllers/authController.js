@@ -94,7 +94,7 @@ const protect = catchAsync(async (req, res, next) => {
 
     const user = await User.findById(decoded.id);
     if (!user) {
-        return next(new AppError('The user belonging to this AccessToken deos not exist', 401));
+        return next(new AppError('The user belonging to this access token deos not exist', 401));
     };
 
     if (user.passwordChanged(decoded.iat)) {
