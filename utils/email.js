@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const htmlToText = require('html-to-text');
 const fs = require('fs');
+
 class Email {
     constructor(user, url) {
         this.to = user.email;
@@ -49,7 +50,7 @@ class Email {
             readFile(`${__dirname}/../public/templates/resetPassword.html`, 'utf-8');
 
         const html = template.replace('#url#', this.url);
-        await this.send(html, 'Your password reset token (valid for 10 minutes)');
+        await this.send(html, 'Your password reset token is (valid for 10 minutes)');
     }
 }
 
