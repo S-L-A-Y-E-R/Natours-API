@@ -77,3 +77,7 @@ WEBHOOK_SECRET=
 ### Live demo
 
 You can use the API form [this link](https://natours-8o6d.onrender.com/)
+
+### API Documentation
+
+You can see the full API documentation from [this link](https://documenter.getpostman.com/view/25679429/2s9YXe6PGb)
