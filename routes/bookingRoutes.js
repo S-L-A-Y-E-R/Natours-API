@@ -22,7 +22,7 @@ router.use(protect);
 
 router.get('/checkout-session/:tourId', getCheckoutSession);
 
-router.post(createBooking);
+router.post('/', createBooking);
 
 router.
     route('/:id').
